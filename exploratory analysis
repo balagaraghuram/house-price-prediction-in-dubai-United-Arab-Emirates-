@@ -1,0 +1,112 @@
+# Importing necessary libraries
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
+from scipy.stats import skew, kurtosis
+from geopy.geocoders import Nominatim
+import folium
+from folium.plugins import HeatMap
+
+# Loading the cleaned property data
+df_properties = pd.read_csv('cleaned_property_data.csv')
+df_properties.head(3)
+
+# Examining Property Price
+# Descriptive statistics for property prices
+df_properties.price.describe()
+
+# Separating properties based on price range
+df_properties_lt5 = df_properties[df_properties.price < 5000001]
+df_properties_gt5 = df_properties[df_properties.price > 5000000]
+
+# Descriptive statistics for properties priced under 5 Million
+df_properties_lt5.price.describe()
+
+# Descriptive statistics for properties priced above 5 Million
+df_properties_gt5.price.describe()
+
+# Filtering out properties priced above 5 Million
+df_properties = df_properties[df_properties.price < 5000001]
+
+# Plotting the distribution of property prices
+fig, ax = plt.subplots(figsize=(8, 8))
+sns.distplot(df_properties.price)
+
+# Printing skewness and kurtosis of property prices
+print("Skewness: %f" % df_properties.price.skew())
+print("Kurtosis: %f" % df_properties.price.kurt())
+
+# Price vs Location
+# Exploring the impact of apartment pricing based on different neighborhoods in Dubai
+df_neighborhood_price = df_properties[['price', 'neighborhood']].sort_values(by=['price'], ascending=False)
+plt.figure(figsize=(30, 10))
+plt.bar(df_neighborhood_price.neighborhood, df_neighborhood_price.price, align='center', alpha=0.5)
+plt.xticks(rotation='vertical')
+plt.show()
+
+# Price vs Area
+# Scatter plot of property size vs price
+plt.figure(figsize=(10, 8))
+feature = 'size_in_sqft'
+plt.scatter(df_properties[feature], df_properties['price'])
+plt.xlabel('size_in_sqft')
+plt.grid(True)
+
+# Price vs Number of Bedrooms
+# Scatter plot of property size vs number of bathrooms
+plt.figure(figsize=(10, 8))
+plt.scatter(df_properties['size_in_sqft'], df_properties['no_of_bathrooms'])
+plt.xlabel('size_in_sqft')
+plt.ylabel('no_of_bathrooms')
+plt.grid(True)
+
+# Box plot of number of bathrooms vs number of bedrooms
+plt.figure(figsize=(10, 8))
+sns.boxplot(x="no_of_bedrooms", y="no_of_bathrooms", data=df_properties)
+plt.show()
+
+# Correlation Heatmap
+# Creating a correlation matrix and visualizing it using a heatmap
+df_properties_corr = df_properties.copy()
+df_properties_corr.drop(['id', 'latitude', 'longitude'], axis=1, inplace=True)
+fig, ax = plt.subplots(figsize=(15, 12))
+corr_matrix = df_properties_corr.corr()
+sns.heatmap(corr_matrix, annot=False)
+plt.show()
+
+# Geographic Visualization
+# Creating a map of Dubai with property prices using Folium
+address = 'Dubai, United Arab Emirates'
+geolocator = Nominatim(user_agent="data_regress_project")
+location = geolocator.geocode(address)
+latitude = location.latitude
+longitude = location.longitude
+
+# Extracting relevant data for the heatmap
+data = df_properties[['latitude', 'longitude', 'price']].values
+
+# Creating a map with property prices heatmap
+map_dubai_re = folium.Map(location=[latitude, longitude], control_scale=True, zoom_start=12)
+
+# Adding markers for each property
+for lat, lng, neighborhood in zip(df_properties['latitude'], df_properties['longitude'], df_properties['neighborhood']):
+    label = '{}'.format(neighborhood)
+    label = folium.Popup(label, parse_html=True)
+    folium.CircleMarker(
+        [lat, lng],
+        radius=2,
+        popup=label,
+        color='b',
+        fill=True,
+        fill_color='#3186cc',
+        fill_opacity=1,
+        parse_html=False).add_to(map_dubai_re)
+
+# Adding a heatmap layer to the map
+radius = 15
+hm = HeatMap(data, radius=radius, blur=30)
+hm.add_to(map_dubai_re)
+
+# Displaying the map
