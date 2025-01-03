@@ -1,0 +1,10 @@
+import pickle
+
+# Assuming RandomForest model
+from sklearn.ensemble import RandomForestRegressor
+model = RandomForestRegressor()
+model.fit(X_train, y_train)
+
+# Save the model
+with open("src/model.pkl", "wb") as f:
+    pickle.dump(model, f)
