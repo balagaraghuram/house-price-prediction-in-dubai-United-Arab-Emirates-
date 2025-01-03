@@ -84,3 +84,12 @@ if st.sidebar.button("Predict"):
 
 # Footer
 st.write("### Powered by Machine Learning | Built with Streamlit")
+
+try:
+    from sklearn.ensemble import RandomForestRegressor
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import mean_squared_error
+except ImportError as e:
+    st.error(f"Required library missing: {e}. Please install the dependencies using `pip install -r requirements.txt`.")
+    st.stop()
+
