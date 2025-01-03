@@ -7,65 +7,70 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 
 # Title of the app
-st.title("Dubai House Price Prediction App")
+st.title("Dubai House Price Prediction App 🏠")
+st.write("Predict house prices in Dubai based on property details like location, size, and more!")
 
 # Sidebar for user inputs
-st.sidebar.header("Enter House Details")
+st.sidebar.header("Enter Property Details")
 
-# Input fields
-location = st.sidebar.selectbox("Location", ["Downtown", "Marina", "JLT", "Business Bay", "Jumeirah"])
-size = st.sidebar.slider("Size (sqft)", 500, 10000, step=100)
-bedrooms = st.sidebar.slider("Number of Bedrooms", 1, 10, step=1)
-bathrooms = st.sidebar.slider("Number of Bathrooms", 1, 10, step=1)
-year_built = st.sidebar.number_input("Year Built", min_value=1900, max_value=2025, value=2020)
+# User inputs
+location = st.sidebar.selectbox(
+    "Location",
+    ["Downtown", "Marina", "JLT", "Business Bay", "Jumeirah"]
+)
+size = st.sidebar.slider("Property Size (sqft)", 500, 10000, step=100, value=1500)
+bedrooms = st.sidebar.slider("Number of Bedrooms", 1, 10, step=1, value=3)
+bathrooms = st.sidebar.slider("Number of Bathrooms", 1, 10, step=1, value=2)
+year_built = st.sidebar.number_input("Year Built", min_value=1900, max_value=2025, value=2015)
 
 # Check if the model exists
 try:
-    # Load pre-trained model if it exists
-    model = pickle.load(open("model.pkl", "rb"))
-    st.success("Model loaded successfully!")
+    # Load the pre-trained model if available
+    with open("model.pkl", "rb") as f:
+        model = pickle.load(f)
+    st.success("Loaded pre-trained model successfully!")
 except FileNotFoundError:
-    # Train a new model if it doesn't exist
-    st.warning("Model file not found. Training a new model...")
+    # If no pre-trained model is found, train a new model with synthetic data
+    st.warning("Pre-trained model not found. Training a new model...")
 
-    # Generate a sample dataset
+    # Generate synthetic dataset
     data = {
-        "location": ["Downtown", "Marina", "JLT", "Business Bay", "Jumeirah"] * 20,
-        "size": np.random.randint(500, 10000, 100),
-        "bedrooms": np.random.randint(1, 10, 100),
-        "bathrooms": np.random.randint(1, 10, 100),
-        "year_built": np.random.randint(1990, 2025, 100),
-        "price": np.random.randint(500000, 5000000, 100),
+        "location": ["Downtown", "Marina", "JLT", "Business Bay", "Jumeirah"] * 100,
+        "size": np.random.randint(500, 10000, 500),
+        "bedrooms": np.random.randint(1, 10, 500),
+        "bathrooms": np.random.randint(1, 10, 500),
+        "year_built": np.random.randint(1990, 2025, 500),
+        "price": np.random.randint(500000, 5000000, 500),
     }
     df = pd.DataFrame(data)
 
-    # Encode location as one-hot (example categorical feature)
+    # One-hot encode location
     df = pd.get_dummies(df, columns=["location"], drop_first=True)
 
     # Features and target
     X = df.drop("price", axis=1)
     y = df["price"]
 
-    # Split into training and testing sets
+    # Train-test split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
     # Train a Random Forest model
     model = RandomForestRegressor(n_estimators=100, random_state=42)
     model.fit(X_train, y_train)
 
-    # Evaluate model
-    y_pred = model.predict(X_test)
-    mse = mean_squared_error(y_test, y_pred)
-    st.info(f"New model trained. MSE: {mse}")
-
-    # Save the model
+    # Save the trained model
     with open("model.pkl", "wb") as f:
         pickle.dump(model, f)
-    st.success("Model saved successfully!")
+    st.success("Model trained and saved successfully!")
 
-# Prediction button
-if st.sidebar.button("Predict"):
-    # Prepare input data
+    # Evaluate the model
+    y_pred = model.predict(X_test)
+    mse = mean_squared_error(y_test, y_pred)
+    st.info(f"New model trained. Mean Squared Error: {mse}")
+
+# Prediction
+if st.sidebar.button("Predict Price"):
+    # Prepare input data for prediction
     input_data = {
         "size": [size],
         "bedrooms": [bedrooms],
@@ -78,18 +83,9 @@ if st.sidebar.button("Predict"):
     }
     input_df = pd.DataFrame(input_data)
 
-    # Predict house price
+    # Predict the house price
     predicted_price = model.predict(input_df)[0]
     st.write(f"### Predicted House Price: AED {round(predicted_price, 2):,}")
 
 # Footer
-st.write("### Powered by Machine Learning | Built with Streamlit")
-
-try:
-    from sklearn.ensemble import RandomForestRegressor
-    from sklearn.model_selection import train_test_split
-    from sklearn.metrics import mean_squared_error
-except ImportError as e:
-    st.error(f"Required library missing: {e}. Please install the dependencies using `pip install -r requirements.txt`.")
-    st.stop()
-
+st.write("### Powered by Machine Learning | Built with Streamlit 🚀")
