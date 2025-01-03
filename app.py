@@ -1,5 +1,3 @@
-# app.py
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -20,9 +18,13 @@ def load_model():
     if not os.path.isfile(model_path):
         st.error(f"Model file '{model_path}' not found. Please ensure it is uploaded to the repository.")
         return None
-    with open(model_path, 'rb') as file:
-        loaded_model = pickle.load(file)
-    return loaded_model
+    try:
+        with open(model_path, 'rb') as file:
+            loaded_model = pickle.load(file)
+        return loaded_model
+    except Exception as e:
+        st.error(f"Error loading the model: {e}")
+        return None
 
 model = load_model()
 
@@ -78,4 +80,10 @@ if st.button('Predict'):
             st.error(f"Error in prediction: {e}")
     else:
         st.error("Model is not loaded properly.")
- 
+
+# Additional Information
+st.sidebar.markdown("""
+---
+**Developed by:** Your Name  
+**Contact:** your.email@example.com
+""")
