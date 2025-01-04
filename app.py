@@ -1,8 +1,9 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import pickle
+import joblib  # Changed from pickle to joblib
 import os
+import traceback  # For detailed error messages
 
 # Set the title of the app
 st.title("🏠 House Price Prediction in Dubai, UAE")
@@ -12,18 +13,18 @@ This application predicts the **House Price** in Dubai based on various features
 """)
 
 # Load the pre-trained model
-@st.cache_resource
+@st.cache_resource  # Ensure you're using Streamlit version that supports cache_resource
 def load_model():
     model_path = 'model.pkl'
     if not os.path.isfile(model_path):
         st.error(f"Model file '{model_path}' not found. Please ensure it is uploaded to the repository.")
         return None
     try:
-        with open(model_path, 'rb') as file:
-            loaded_model = pickle.load(file)
+        loaded_model = joblib.load(model_path)  # Changed from pickle.load to joblib.load
         return loaded_model
     except Exception as e:
         st.error(f"Error loading the model: {e}")
+        st.text(traceback.format_exc())  # Display the full traceback
         return None
 
 model = load_model()
@@ -78,12 +79,12 @@ if st.button('Predict'):
             st.success(f'Estimated House Price: AED {prediction[0]:,.2f}')
         except Exception as e:
             st.error(f"Error in prediction: {e}")
+            st.text(traceback.format_exc())  # Display the full traceback
     else:
         st.error("Model is not loaded properly.")
 
 # Additional Information
 st.sidebar.markdown("""
 ---
-**Developed by:** Your Name  
-**Contact:** your.email@example.com
+**Developed by:** Balaga Raghuram  
 """)
