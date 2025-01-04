@@ -168,5 +168,6 @@ if st.button('🔮 Predict'):
 # Additional Information
 st.sidebar.markdown("""
 ---
-**Developed by:** Balaga Raghuram
- 
+**Developed by:** Your Name  
+**Contact:** your.email@example.com
+""")
