@@ -112,19 +112,19 @@ model = load_model(MODEL_PATH)
 
 # Function to get user input
 def get_user_input():
-    st.sidebar.header('Specify Input Parameters')
+    st.sidebar.header('🛠️ Specify Input Parameters')
 
     # Define the input options
     locations = ('Downtown', 'Marina', 'Jumeirah', 'Business Bay', 'Other')
     property_types = ('Apartment', 'Villa', 'Townhouse', 'Studio')
 
     # Sidebar inputs
-    location = st.sidebar.selectbox('Location', locations)
-    property_type = st.sidebar.selectbox('Property Type', property_types)
-    bedrooms = st.sidebar.number_input('Number of Bedrooms', min_value=0, max_value=10, value=3, step=1)
-    bathrooms = st.sidebar.number_input('Number of Bathrooms', min_value=0, max_value=10, value=2, step=1)
-    sqft = st.sidebar.number_input('Square Footage (sqft)', min_value=100, max_value=10000, value=1500, step=100)
-    age = st.sidebar.number_input('Property Age (years)', min_value=0, max_value=100, value=5, step=1)
+    location = st.sidebar.selectbox('📍 Location', locations)
+    property_type = st.sidebar.selectbox('🏡 Property Type', property_types)
+    bedrooms = st.sidebar.number_input('🛏️ Number of Bedrooms', min_value=0, max_value=10, value=3, step=1)
+    bathrooms = st.sidebar.number_input('🛁 Number of Bathrooms', min_value=0, max_value=10, value=2, step=1)
+    sqft = st.sidebar.number_input('📐 Square Footage (sqft)', min_value=100, max_value=10000, value=1500, step=100)
+    age = st.sidebar.number_input('🕰️ Property Age (years)', min_value=0, max_value=100, value=5, step=1)
 
     # Encode categorical variables
     location_map = {'Downtown': 0, 'Marina': 1, 'Jumeirah': 2, 'Business Bay': 3, 'Other': 4}
@@ -133,7 +133,7 @@ def get_user_input():
     location_encoded = location_map.get(location, 4)
     property_type_encoded = property_type_map.get(property_type, 3)
 
-    # Create a DataFrame for the input features
+    # Create a dictionary for the input features
     user_data = {
         'Location': location_encoded,
         'Property_Type': property_type_encoded,
