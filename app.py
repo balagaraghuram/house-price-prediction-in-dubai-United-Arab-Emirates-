@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import joblib  # Changed from pickle to joblib
+import pickle  # Reverted to pickle
 import os
 import traceback  # For detailed error messages
 
@@ -20,7 +20,8 @@ def load_model():
         st.error(f"Model file '{model_path}' not found. Please ensure it is uploaded to the repository.")
         return None
     try:
-        loaded_model = joblib.load(model_path)  # Changed from pickle.load to joblib.load
+        with open(model_path, 'rb') as file:
+            loaded_model = pickle.load(file)  # Use pickle to load the model
         return loaded_model
     except Exception as e:
         st.error(f"Error loading the model: {e}")
@@ -29,7 +30,7 @@ def load_model():
 
 model = load_model()
 
-# Function to get user input
+# Function to get user input (remains unchanged)
 def get_user_input():
     st.sidebar.header('Specify Input Parameters')
 
@@ -86,5 +87,7 @@ if st.button('Predict'):
 # Additional Information
 st.sidebar.markdown("""
 ---
-**Developed by:** Balaga Raghuram  
+**Developed by:** Balaga Raghuram
+
+ 
 """)
